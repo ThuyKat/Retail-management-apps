@@ -176,6 +176,26 @@ NOTE: To implement persistent based remember me cookie, 2 Repositories are creat
 
 - When user select add new category, user will be directed to Category Controller - method showAddCategoryForm. This method addAttributes such as all categories, topLevelCategories to model so that we have all selections possible for parent category when creating a new one. 
 
+![alt text](image.png)
+
+- New category is created  and a flashAttribute is returned with either successful message or error. It is created using categoryService which does check if category's name has already existed. If it does exist, an error message will be thrown. We use jQuery script to display this message/error. NewCategoryId is also forwarded to the next request using redirectAttribute.addAttribute. The next request is actually get method again to regenerate the form. This time the get method has a new parameter which is newCategoryId, it adds that to the request sent to client. 
+
+- In addCategory.jsp, we validate newCategory attribute if exist to let a new button named addSize appear. Clicking on this button will submit a new request to Category controller get the addCategoryForm again and this time showing addSize form. 
+
+- The submited new size is added and redirection happens just as how it does for adding new category. 
+
+- All the new added sizes and categories are directly shown on category structure under the form after each refresh. 
+
+2. View Current Categories
+
+- This display the category structure with added option to edit the name of the existing categories and sizes. Each editing window for each category will have a display of current subcategories and sizes and options to add a new one under it. 
+- There are also button to delete categories and sizes. Clicking on this will leads to Category controller where categories and all subCategories under it will be deleted at once. One note is that we need to iterate over a copy of category.getSubcategories() using new ArrayList<>(category.getSubcategories()) to avoid ConcurrentModificationException - modifying and iterating over a collection at the same time. 
+
+- Before deleting a category, we implement a method to check if the category and subcategories under it has any associations with any products. If the method return true then we will not delete the category but throw an exception. 
+
+
+
+
  
 
 
