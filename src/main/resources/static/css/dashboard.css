@@ -1,0 +1,72 @@
+body {
+	font-family: Arial, sans-serif;
+	background-color: #f0f4f8;
+	color: #333;
+	margin: 0;
+	padding: 20px;
+}
+
+.container {
+	max-width: 800px;
+	margin: 0 auto;
+	padding: 20px;
+	background-color: #fff;
+	border-radius: 8px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+	text-align: center;
+	color: #3498db;
+}
+
+.options {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+	margin-top: 20px;
+}
+
+.option {
+	padding: 15px;
+	background-color: #3498db;
+	color: #fff;
+	text-align: center;
+	border-radius: 5px;
+	text-decoration: none;
+	font-weight: bold;
+	transition: background-color 0.3s ease;
+}
+
+.option:hover {
+	background-color: #2980b9;
+}
+
+/* Footer Styles */
+footer {
+    background-color: #f8f9fa; /* Light background color */
+    padding: 15px; /* Padding for spacing */
+    text-align: center; /* Center align text */
+    border-top: 1px solid #dee2e6; /* Top border for separation */
+    position: relative; /* Positioning context */
+    bottom: 0; /* Stick to the bottom */
+    width: 100%; /* Full width */
+    margin-top: 20px; /* Space above the footer */
+}
+
+footer a {
+    color: #3498db; /* Link color */
+    text-decoration: none; /* Remove underline */
+    font-weight: bold; /* Bold text */
+    transition: color 0.3s; /* Smooth color transition */
+}
+
+footer a:hover {
+    color: orange; /* Change text color to orange on hover */
+    text-decoration: underline; /* Optional: Add underline on hover for clarity */
+}
+
+footer span {
+    color: #6c757d; /* Gray color for the default message */
+    font-size: 0.9em; /* Slightly smaller font size */
+}

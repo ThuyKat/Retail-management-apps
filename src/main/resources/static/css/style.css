@@ -1,0 +1,137 @@
+:root{
+    --primary-yellow: #FED811;
+    --secondary-yellow: #FFF6C3;
+    --primary-green: #06837F;
+    --black: #000000;
+    --white: #ffffff;
+    --fs-2: 2rem;
+    --fs-1: 1rem;
+    --fs-1-25: 1.25rem;
+    --fs-1-375: 1.375rem;
+
+}
+* {
+    box-sizing: border-box;
+    margin: 0;   
+    font-family: 'Inter', sans-serif;
+    scroll-behavior: smooth;
+    
+}
+body{
+    width: 100%;
+    height: 932px;
+}
+.bg-primary-yellow{
+    background-color: var(--primary-yellow);
+}
+.bg-secondary-yellow{
+    background-color: var(--secondary-yellow);
+}
+button{
+    border: none;
+    outline: none;
+}
+input{
+    border: none;
+    outline: none;
+}
+
+input::placeholder{
+   color: rgb(0, 0, 0, 0.5);
+   font-size: 1.25rem;
+}
+
+#login-screen{
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--primary-yellow);
+}
+
+.perfect-center{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.fs-2r{
+    font-size: 2rem;
+
+}
+.fs-1-25r{
+    font-size: 1.25rem;
+}
+.fs-1-375r{
+    font-size: 1.375rem;
+}
+.fs-1r{
+    font-size: 1rem;
+}
+.box-shadow{
+    box-shadow: 0px 4px 6px 1px rgba(0, 0, 0, 0.3);
+}
+.inner-shadow{
+    box-shadow:  inset 0px 2px 4px rgba(0, 0, 0, 0.3);
+}
+.border-linear-gad{
+    background: linear-gradient(100deg, var(--primary-green), rgba(0, 0, 0, 0.5));
+}
+a{
+    color: var(--primary-white)
+}
+.height-15{
+    height: 15%;
+}
+.height-10{
+    height: 10%;
+}
+.bg-custom-primary {
+    background-color: var(--primary-yellow);
+}
+
+.bg-secondary {
+    background-color: var(--secondary-yellow) !important;
+}
+.bg-primary-green{
+    background-color: var(--primary-green);
+}
+.custom-shadow {
+    box-shadow: 0px 4px 6px 1px rgba(0, 0, 0, 0.3);
+}
+
+.custom-button {
+    background-color: var(--primary-green);
+    color: white;
+    font-weight: 600;
+    border-radius: 1.25rem;
+    box-shadow: 0px 4px 6px 1px rgba(0, 0, 0, 0.3);
+    border: 2px solid var(--secondary-green);
+    text-decoration: none;
+
+}
+
+.custom-button:hover {
+    background-color: var(--primary-green);
+    opacity: 0.9;
+    color: white
+}
+
+.product-section {
+    height: 75%;
+}
+
+.custom-image {
+    width: 4rem;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.product-quantity>input[type=button] {
+    background-color: var(--primary-green);
+    color: var(--white)
+}
+
+.perfect-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}

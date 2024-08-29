@@ -1,0 +1,160 @@
+:root {
+  --primary-color: #3498db;
+  --secondary-color: #2c3e50;
+  --background-color: #ecf0f1;
+  --form-background: #ffffff;
+  --text-color: #333333;
+  --border-color: #bdc3c7;
+  --success-color: #2ecc71;
+  --checkbox-size: 1em; /* Use em for responsive sizing */
+}
+
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 90%; /* Use percentage for responsive width */
+  margin: 40px auto;
+  background-color: var(--form-background);
+  padding: 2em; /* Use em for responsive padding */
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: var(--secondary-color);
+  margin-bottom: 1.5em; /* Use em for responsive margin */
+  font-weight: 300;
+  font-size: 2.5em;
+}
+
+.form-group {
+  margin-bottom: 1.5em; /* Use em for responsive margin */
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5em; /* Use em for responsive margin */
+  font-weight: 500;
+  color: var(--secondary-color);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+select {
+  width: 100%;
+  padding: 0.75em; /* Use em for responsive padding */
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 1em; /* Use em for responsive font size */
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+input[type="submit"] {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.75em 1.25em; /* Use em for responsive padding */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em; /* Use em for responsive font size */
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover {
+  background-color: #2980b9;
+}
+
+.permissions-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  font-size: 0.9em; /* Use em for responsive font size */
+}
+
+.permissions-table th,
+.permissions-table td {
+  padding: 0.5em; /* Use em for responsive padding */
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.permissions-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.8em; /* Use em for responsive font size */
+  letter-spacing: 0.5px;
+}
+
+.permissions-table tr:last-child td {
+  border-bottom: none;
+}
+
+.permissions-table input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: var(--checkbox-size);
+  height: var(--checkbox-size);
+  border: 2px solid var(--border-color);
+  border-radius: 3px;
+  outline: none;
+  transition: all 0.3s ease;
+  position: relative;
+  cursor: pointer;
+  vertical-align: middle;
+  margin-right: 0.5em; /* Use em for responsive margin */
+}
+
+.permissions-table input[type="checkbox"]:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.permissions-table input[type="checkbox"]:checked::before {
+  content: '\2714';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 0.75em; /* Use em for responsive font size */
+}
+
+@media (max-width: 768px) {
+  .container {
+    margin: 20px;
+    padding: 1.5em; /* Adjust padding for smaller screens */
+  }
+  
+  .permissions-table {
+    font-size: 0.8em; /* Adjust font size for smaller screens */
+  }
+  
+  .permissions-table th,
+  .permissions-table td {
+    padding: 0.4em; /* Adjust padding for smaller screens */
+  }
+}
