@@ -197,5 +197,55 @@ NOTE: To implement persistent based remember me cookie, 2 Repositories are creat
 
 
  
+# Deployment notes
+## Switch to WAR package instead of JAR
+ Since we use jsp files for front end, we need to package the app into WAR (Web Application Archive) specifically for web apps that can be deployed on servlet/Jsp containers. WAR file contain web applications like Html, jsp, js, servlets as well as java classes.
 
+ STEP 1: pom.xlm
 
+ 1. add the packaging type under < version> tag of the project :
+ ```xml
+	<packaging>war</packaging>
+```
+2. Add the Maven WAR plugin in < build> < plugins> section:
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-war-plugin</artifactId>
+    <version>3.3.2</version>
+</plugin>
+```
+3. update the spring-boot-maven plugin configuration to include: 
+```xml
+<plugin>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-maven-plugin</artifactId>
+    <configuration>
+        <addResources>true</addResources>
+        <excludes>
+            <exclude>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+            </exclude>
+        </excludes>
+        <mainClass>com.AllInSmall.demo.Application</mainClass>
+    </configuration>
+</plugin>
+```
+STEP 2: in main application class, extend SpringBootServletInitializer and override the configure method:
+```java
+@SpringBootApplication
+public class YourMainClass extends SpringBootServletInitializer {
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(YourMainClass.class);
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(YourMainClass.class, args);
+    }
+}
+```
+--> 2 options available when running WAR : using embedded Tomcat server in SpringBoot application OR deploy it to an external servlet container.
+--> this allows deploying in an external servlet container( like Tomcat,etc), configure launching application by servlet container rather than throught the main() method. This acts like a bridge between the servlet container's lifecycle and SpringBoot's application context. IDEs often have built-in servers that can run web application directly from the project structure which is different from running a packaged application (JAR or WAR) in a production environment. This class does not provide a container, but it helps the application initialize properly in an external container where embeded SpringBoot server run. Specifically, it implements WebApplicationInitializer. This means it's discovered and used by SpringServletContainerInitializer during the servlet container's startup process. 
