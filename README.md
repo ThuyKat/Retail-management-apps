@@ -264,24 +264,24 @@ docker exec -i [container_name_or_id] mysqldump -u root -p[root_password] [datab
 ```
 Alternatively, it can be broken into several steps: 
 1. First, log into your MySQL container:
-```
+```bash
 docker exec -it [container_name_or_id] bash
 ```
 2. Once inside the container, run mysqldump:
-```
+```bash
 mysqldump -u root -p [database_name] > /tmp/database_backup.sql
 ```
 3. Exit the container:
-```
+```bash
 exit
 ```
 4. Copy the file from the container to host machine
-```
+```bash
 docker cp [container_name_or_id]:/tmp/database_backup.sql ~/Desktop/database_backup.sql
 ```
 
 - Transfer the backup file into EC2:
-```
+```bash
 scp -i your-ec2-key.pem database_backup.sql ec2-user@your-ec2-public-ip:/home/ec2-user/
 ```
 
