@@ -194,9 +194,6 @@ NOTE: To implement persistent based remember me cookie, 2 Repositories are creat
 - Before deleting a category, we implement a method to check if the category and subcategories under it has any associations with any products. If the method return true then we will not delete the category but throw an exception. 
 
 
-
-
- 
 # Deployment notes
 ## Switch to WAR package instead of JAR
  Since we use jsp files for front end, we need to package the app into WAR (Web Application Archive) specifically for web apps that can be deployed on servlet/Jsp containers. WAR file contain web applications like Html, jsp, js, servlets as well as java classes.
@@ -249,3 +246,141 @@ public class YourMainClass extends SpringBootServletInitializer {
 ```
 --> 2 options available when running WAR : using embedded Tomcat server in SpringBoot application OR deploy it to an external servlet container.
 --> this allows deploying in an external servlet container( like Tomcat,etc), configure launching application by servlet container rather than throught the main() method. This acts like a bridge between the servlet container's lifecycle and SpringBoot's application context. IDEs often have built-in servers that can run web application directly from the project structure which is different from running a packaged application (JAR or WAR) in a production environment. This class does not provide a container, but it helps the application initialize properly in an external container where embeded SpringBoot server run. Specifically, it implements WebApplicationInitializer. This means it's discovered and used by SpringServletContainerInitializer during the servlet container's startup process. 
+
+## AWS EC2
+
+* The war package and the database can be send to ec2 instance by following steps : 
+
+1. connect to ec2 from local machine 
+```
+ssh -i your-ec2-key.pem ec2-user@your-ec2-public-ip 
+```
+2. create a copy of database from Docker container to local machine then import it into the ec2 instance
+
+- find the id of docker container using "docker ps"
+- Use mysqldump command inside the Docker container to export database out of docker container to local machine
+```
+docker exec -i [container_name_or_id] mysqldump -u root -p[root_password] [database_name] > /path/to/your/desired/location/database_backup.sql
+```
+Alternatively, it can be broken into several steps: 
+1. First, log into your MySQL container:
+```
+docker exec -it [container_name_or_id] bash
+```
+2. Once inside the container, run mysqldump:
+```
+mysqldump -u root -p [database_name] > /tmp/database_backup.sql
+```
+3. Exit the container:
+```
+exit
+```
+4. Copy the file from the container to host machine
+```
+docker cp [container_name_or_id]:/tmp/database_backup.sql ~/Desktop/database_backup.sql
+```
+
+- Transfer the backup file into EC2:
+```
+scp -i your-ec2-key.pem database_backup.sql ec2-user@your-ec2-public-ip:/home/ec2-user/
+```
+
+* Inside EC2 instance, we also need to install Java Jdk and Docker: 
+
+- Docker: 
+
+STEP 1: update all installed packages on Amazon Linux 2 system 
+```bash
+sudo yum update -y
+```
+STEP 2: install Docker
+```bash
+sudo amazon-linux-extras install docker
+```
+STEP 3: start Docker service
+```bash
+sudo service docker start
+```
+STEP 4:adds the ec2-user to the docker group, allowing the user to run Docker commands without sudo
+```bash
+sudo usermod -a -G docker ec2-user
+```
+STEP 6: verifying Docker access : This should display the Docker version without requiring sudo.
+
+```bash
+docker --version
+```
+STEP 7: run a test docker command
+```bash
+docker run hello-world
+```
+--> This command should pull the hello-world image and run it, confirming that Docker is working correctly.It's designed as a simple test to confirm that Docker is working by output a message to the console
+
+STEP 8: checking the group membership if any issue exists
+```bash
+groups ec2-user
+```
+--->This command should list docker among the groups for ec2-user. If it doesn't, double-check the usermod command and ensure you logged out and back in properly
+
+STEP 9: run mysql image 
+```bash
+docker pull mysql:latest
+```
+STEP 10: create volume on EC2 for persistent storage
+```bash
+docker volume create mysql_data
+```
+STEP 11: Start a new MySQL container on EC2:
+```bash
+docker run -d --name mysql_container -e MYSQL_ROOT_PASSWORD=your_root_password -v mysql_data:/var/lib/mysql -p 3306:3306 mysql:latest
+```
+STEP 12: import backup data into new container
+```bash
+docker exec -i mysql_container mysql -uroot -pyour_root_password < /home/ec2-user/all_databases_backup.sql
+```
+STEP 13: Update Spring Boot application.properties
+**If SpringBoot apps is also in Docker:** 
+---> make sure both Spring Boot app container and mysql container is on the same network:
+ ```bash
+      docker network create mynetwork
+      docker network connect mynetwork your_mysql_container
+      docker network connect mynetwork your_springboot_container
+ ```
+--->Then update your application.properties to use the container name instead of IP:
+
+      ```bash
+      spring.datasource.url=jdbc:mysql://your_mysql_container:3306/your_database_name
+      ```
+
+**If SpringBoot apps is not in Docker:**
+If the Spring Boot application is running on the host and not in a Docker container, we might need to use the Docker container's IP instead of "localhost"
+--> get the container IP: 
+```
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_container
+```
+--> update in application.properties:
+
+ ```bash
+      spring.datasource.url=jdbc:mysql://[ container's IP]:3306/your_database_name
+      spring.datasource.username=your_username
+      spring.datasource.password=your_password
+ ```
+
+- Java 
+
+STEP 1: Install Amazon Corretto 17
+   ```bash
+   sudo yum install java-17-amazon-corretto-devel
+   ```
+
+STEP 2: Veriy Java installation
+```bash
+java -version
+```
+
+
+
+
+
+
+
