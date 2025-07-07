@@ -1,386 +1,186 @@
-# Retail-management-apps
+# Retail Management Apps
 
-## User Login
+A comprehensive Spring Boot monolithic e-commerce and retail management web application. Features complete user authentication, product catalog management, order processing with PayPal integration, role-based access control, and business reporting capabilities.
 
-1. Spring Security set up 
+## Features
 
-- Security config class is in Configuration package (@ Configuration). This class requires a bean of custom UserDetailsService ( named MyUserDetailsService) and a bean of PasswordEncoder method. 
+### Authentication & Security System
+- Secure login/logout with JWT and remember-me functionality
+- Role-based access control with hierarchical permissions
+- Password reset and recovery via email verification
+- Custom authentication success and access denied handlers
+- Session management with configurable timeout
+- Automated security key rotation with scheduled tasks
 
-- MyUserDetailsService is defined as a Service (@ Service) in Service package. This class is an implementation of org.springframework.security.core.userdetails.UserDetailsService. It is responsible for get User by username from database and match the User found to UserDetails object for Spring Security to use in authentication and authorization process. 
+### Product & Category Management
+- Complete CRUD operations for products and categories
+- Product search and filtering capabilities
+- Category hierarchy management
+- Product detail management with size and comment support
 
-- In this project, UserDetails class is also customized as MyUserDetails class in Dto package. 
-```java
-public class MyUserDetails implements UserDetails {
-	
-	private static final long serialVersionUID = 1L;
-	private String userName;
-	private String password;
-	private UserStatus status;
-	private Set<GrantedAuthority> authorities;
-	private Role role;
+### Order Management System
+- Order creation and processing workflow
+- Multiple payment options (Cash and PayPal integration)
+- PayPal QR code generation for mobile payments
+- Order status tracking and history
+- Order detail management with line items
+- Order search and filtering capabilities
+
+### User Management
+- User registration and profile management
+- Role and permission assignment
+- User status management (active/inactive)
+- Hierarchical role system (Admin, Manager, User)
+- Gmail credential management for email services
+
+### Business Reporting & Analytics
+- Sales reports by product with visual charts
+- Sales reports by user performance
+- Order status analytics and tracking
+- Dashboard with key business metrics
+- Custom reporting with date range filtering
+- Export capabilities for business intelligence
+
+### Email Integration
+- Gmail SMTP integration for notifications
+- Password reset email functionality
+- Order confirmation emails
+- Custom email templates and messaging
+
+## Project Structure
+
 ```
-- Since this is a management apps, users will have different roles and according to each roles, we have different set of authorizations or permissions. Role Hierarchy bean is defined in HierarchyConfig class in Configuration package :
-```java
-@Configuration
-public class HierarchyConfig {
+src/main/java/com/AllInSmall/demo/
+├── controller/                   # MVC Controllers
+│   ├── HomeController.java       # Landing page and navigation
+│   ├── LoginController.java      # Authentication flows
+│   ├── UserController.java       # User management
+│   ├── CategoryController.java   # Category operations
+│   ├── ProductController.java    # Product management
+│   ├── OrderController.java      # Order processing
+│   ├── ReportController.java     # Business reporting
+│   └── DashboardController.java  # Analytics dashboard
+├── service/                      # Business Logic Layer
+│   ├── UserRegistrationService.java
+│   ├── LoginService.java
+│   ├── MyUserDetailsService.java
+│   ├── EmailService.java
+│   ├── GmailService.java
+│   ├── PayPalService.java
+│   └── CategoryService.java
+├── repository/                   # Data Access Layer
+│   ├── UserRepository.java       # Standard JPA repositories
+│   ├── ProductRepository.java
+│   ├── OrderRepository.java
+│   └── custom/                   # Custom repository implementations
+│       ├── CustomOrderRepositoryForReportingImpl.java
+│       └── MyPersistentTokenRepositoryImpl.java
+├── model/                        # Domain Entities
+│   ├── User.java, Role.java, Permission.java
+│   ├── Product.java, Category.java
+│   ├── Order.java, OrderDetail.java
+│   ├── VerificationToken.java
+│   └── PersistentLogin.java
+├── dto/                          # Data Transfer Objects
+│   ├── UserRegistrationRequest.java
+│   ├── OrdersByStatusDto.java
+│   ├── SalesByProductDto.java
+│   └── PaypalOrderResponse.java
+├── configuration/                # Spring Configuration
+│   ├── SecurityConfig.java       # Security filter chain
+│   ├── HierarchyConfig.java      # Role hierarchy
+│   ├── SessionConfig.java        # Session management
+│   ├── RememberMeKeyManager.java # Security key management
+│   ├── KeyRotationScheduler.java # Scheduled tasks
+│   ├── JavaMailConfig.java       # Email configuration
+│   └── InterceptorConfig.java    # Request interceptors
+├── exception/                    # Exception Handling
+│   └── ProductNotFoundException.java
+└── enums/                        # Application Enums
+    ├── OrderStatus.java
+    └── UserStatus.java
 
-	@Bean
-	public RoleHierarchy roleHierarchy() {
+src/main/webapp/WEB-INF/views/    # JSP View Templates
+├── login.jsp, registerUser.jsp, forgotPasswordForm.jsp
+├── manageUser.jsp, manageCategory.jsp, manageProduct.jsp
+├── ordersByStatus.jsp, salesByProduct.jsp, salesByUser.jsp
+├── paymentOption.jsp, paypalQRCode.jsp, cashPayment.jsp
+└── viewOrderList.jsp, viewOrder.jsp, viewReport.jsp
 
-		return RoleHierarchyImpl.fromHierarchy("ROLE_Owner > ROLE_Manager > ROLE_Staff");
-	}
-}
-```
-- Our intention is to use this hierarchy to allow user with higher roles to have all permissions available to lower roles. In order to do this, for each role, we need to define a set of authorities that include not only authorities specifically for that role, but also all authorities of roles that lower than that role. This is done inside findUserByUsername method of MyUserDetailsService: 
-```java
-@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Not found: " + username));
-
-		Set<GrantedAuthority> authorities = new HashSet<>(user.getRole().getAuthorities());
-		
-		// Use role hierarchy to determine all applicable roles
-        Collection<? extends GrantedAuthority> hierarchicalAuthorities = 
-            roleHierarchy.getReachableGrantedAuthorities(authorities);
-        
-        // Include all initial and hierarchical authorities
-        Set<GrantedAuthority> allAuthorities = new HashSet<>(authorities);
-        allAuthorities.addAll(hierarchicalAuthorities);
-        
-     // Add authorities for roles that weren't in the original set
-        for (GrantedAuthority authority : hierarchicalAuthorities) {
-            if (authority.getAuthority().startsWith("ROLE_") && !authorities.contains(authority)) {
-                String roleName = authority.getAuthority().substring(5);
-                allAuthorities.addAll(getAuthoritiesForRole(roleName));
-            }
-        }
-       
-		return new MyUserDetails(user.getUsername(),user.getPassword(),user.getStatus(),allAuthorities, user.getRole());
-
-	}
-
-	private Collection<? extends GrantedAuthority> getAuthoritiesForRole(String roleName) {
-		List<Role>roles = roleRepository.findAll();
-		
-		for(Role role : roles) {
-			if(roleName.equalsIgnoreCase(role.getRoleName())) {
-				return role.getAuthorities();
-			}
-		}
-		return Collections.emptyList();
-	}
-```
-- In the context of this project, Staff user can only access methods relating to order processing methods such as: add items to order, view current order, reset order, place order and accept payment either in cash or paypal. Meanwhile, Manager, apart from ability to access all methods available to Staff, can further approve refund for cancelled orders, register new Staff, view reports. Owner is the only type of user with access to product and category-related methods such as add new category, new product, and register new user as a manager or an owner. 
-
-2. Login function
-- Normal login requires only username and password to access. Once login is successful, redirection for different type of users is managed by CustomAuthenticationSuccessHandler class in Configuration class. This class extracts username from SecurityContextHolder and use that to get User entity from database. This user is set as an attribute of the sessionOrder. Then the class either redirect user to management dashboard ( if user is Manager or Owner) or to index page (if user is Staff). Fail login will be redirect back to Login page. When user enter into unauthorized page, Spring security will redirect user to CustomAccessDeniedHandler class which will redirect user to accessDenied Get API in LoginController and finally to accessDenied.jsp page. 
-
-3. Remember Me - Persistent Based Remember Me cookie
-
-- The filter responsible for handling "Remember Me" functionality, often called RememberMeAuthenticationFilter or similar, is configured to look for a specific parameter name in the login request. By default, this parameter is usually named "rememberMe" or "remember-me". 
-
-- Filter processing: When the login request is processed, the authentication filter checks for the presence of the "rememberMe" parameter.If the parameter is present and set to "true", the filter initiates the remember-me process.This typically involves creating a persistent token or cookie that allows the user to be automatically logged in on subsequent visits
-
-- First step is to create a persistent_logins table in database : 
-```java
-create table persistent_logins (username varchar(64) not null,
-								series varchar(64) primary key,
-								token varchar(64) not null,
-								last_used timestamp not null)
-```
-- RememberMe service creation requires three arguments:
-
-  **rememberMeKey** : The key is a secret value used by the server to validate remember-me tokens. It's not sent to the client side like in JWT, but rather used internally by Spring Security to ensure the integrity and authenticity of the remember-me process.It acts as a shared secret between different instances of your application.This ensures that a token generated by one instance can be validated by another, providing seamless user experience across different servers.Furthermore, changing the key invalidates all existing remember-me tokens, which is a useful security feature.Spring Security uses this key internally in its token generation if it is not persistence-based and for only validation processes if it is persistence-based.It's part of the security mechanism that prevents token forgery or tampering.
-
-  **myUserDetailsService**:When a remember-me token is presented, this service is used to load the user details for authentication. This is also necessary so that the user's password is available and can be checked as part of the encoded cookie.For example, the cookie encoded by this implementation adopts the following form:
-
-  a. TokenBasedRememberMeService
-
-```java
- username + ":" + expiryTime + ":" + algorithmName + ":"
-                + algorithmHex(username + ":" + expiryTime + ":" + password + ":" + key)
-```
----> for reference, we can see method makeTokenSignature in TokenBasedRememberMeServices class of Spring-Security: 
-```java
-	protected String makeTokenSignature(long tokenExpiryTime, String username, String password) {
-		String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();
-		try {
-			MessageDigest digest = MessageDigest.getInstance(this.encodingAlgorithm.getDigestAlgorithm());
-			return new String(Hex.encode(digest.digest(data.getBytes())));
-		}
-		catch (NoSuchAlgorithmException ex) {
-			throw new IllegalStateException("No " + this.encodingAlgorithm.name() + " algorithm available!");
-		}
-	}
-```
-"This implementation uses the algorithm configured in encodingAlgorithm to encode the signature. It will try to use the algorithm retrieved from the algorithmName to validate the signature. However, if the algorithmName is not present in the cookie value, the algorithm configured in matchingAlgorithm will be used to validate the signature. This allows users to safely upgrade to a different encoding algorithm while still able to verify old ones if there is no algorithmName present."
-
-As such, if the user changes their password, any remember-me token will be invalidated. Equally, the system administrator may invalidate every remember-me token on issue by changing the key.
-
----> when method processAutoLoginCokkie is triggered, first thing it will check for the cookieLength, expiryTime - cookieToken [ 1 ], then it uses UserDetailsService to load User by username stored as cookieTokens[ 0 ]. After User is retrieved, it gets the main part of the token cookieToken [ 3] or cookieToken [ 2] if the cookieToken doesnt contain matching Algorithm name. We knows this by checking the cookieToken's length. With parameters including: tokenExpiryTime, username, password( retrieved from database) and the algorithm, it creates a value called expectedTokenSignature. This value is used to compared with the main part of the cookieToken. 
-
----> When login is successful, onLoginSuccess() method is triggered. This method will retrieve username and password from authentication object : authentication.getPrincipal(). It also retrieve username and password from database if there are any changes in database. Then, it calculates the login life time to see if token is expired or not, if expired, new expiry time = 2 weeks - tokenLifetime. If not yet expired, it remains the tokenLifetime as expiry time. 
-All these information then be used to create a new token signature value to be set in a new cookie sent back to client. 
-
-b. PersistentTokenBasedRememberMeServices
-
-- This token value is actually shorter than the previous one since the token string only contains two value: cookieTokens [ 0] -> presentedSeries and cookieTokens [ 1] -> presentedToken
-
-- ProcessAutoLoginCookie in this class will involve following steps: 
-
- --> check cookieToken's length then retrieved the presentedSeries and presentedToken. The presentedSeries is used to get the token from database using method .getTokenForSeries() mentioned above. 
-
- --> if token doesnt match the result of .getTokenForSeries(), we delete all persistent_logins associated with user and throw exception to warn them using .removeUserTokens() method. 
-
- --> Next, we check if the token has expired. If expired, we throw exception then create a newToken with the same series, username, and new token value, new date. This new token then be updated to database using .updateToken() method mentioned above and also be sent back to client. 
-
- - onLoginSuccess():  once login is success, a new persistentToken is created to be saved to database using .createNewToken(token) method of tokenRepository mentioned above and this will also be sent to client. 
-
- --> The fact that Spring security not reuse the token available in database but generate a new one provides more granular controls over users' sessions. This is particularly useful when users log in from different devices or contexts that may require different session lengths. Moreover, if a single token were reused, stealing that token would grant access to all of the user's sessions. With multiple tokens, compromising one token only affects a single session
-
- --> The persistent token approach in Spring Security is based on the article "Improved Persistent Login Cookie Best Practice" with some modifications. This approach creates a new database entry for each remember-me token, storing information such as the username, series identifier, token value, and last used timestamp. While this approach does require more database operations and storage, the security benefits generally outweigh the minimal performance impact for most applications
-
- - logout(): removeUserTokens() method of tokenRepository is used to remove all tokens/logins associated with the username. 
-
-  **myPersistentTokenRepositoryImpl**: PersistentTokenRepository is defined by Spring security, include methods specifically designed for remember-me functionality createNewToken(),updateToken(), getTokenForSeries(), and removeUserTokens(). In this project, we create a custom implementation of PersistentTokenRepository
-
-  --> createNewToken(PersistentRememberMeToken token): this is called when a user logs in and selects "Remember Me", it encodes and save a new remember-me token in the database
-
-  --> updateToken(String series, String tokenValue, Date lastUsed): this method is called when an existing RM token is used for authentication. This method updates the token value by using encodeToken(tokenValue, encodingAlgorithm) and updates the last used date in the database. This helps in maintaining the token's validity and tracking its usage
-
- --> getTokenForSeries(String seriesId) : this is called when Spring Security needs to validate a RM token. It retrieves the token info from the db using the seriesId ( this is actually tokenId). No token found results in authentication failure
-
- --> removeUserTokens(String username): called when a user logs out or when their RM token needs to be invalidated.It removes all RM tokens associated with the given username
-
- --> matchesToken(String presentedToken, String series): This is a custom method, not part of the standard interface. Its job is to compare a presented token with the stored token. The current encoding algorithm(SHA256) can be used, it also allows using MD5 for backwards compatibility with older token. 
-
- --> setEncodingAlgorithm(RememberMeTokenAlgorithm encodingAlgorithm) and setMatchingAlgorithm(matching Algorithm): allow for changing the encoding and matching algorithms, useful for upgrading or change the security mechanism as needed
-
----> This approach is more flexible compard to JdbcTokenRepositoryImpl: Stores tokens as-is without additional encoding. It can be more easily adapted to different database systems if needed.
-
-NOTE: To implement persistent based remember me cookie, 2 Repositories are created. Once is used to interact with database via Jpa, the other is to provide custom implementations for PesistentBasedRememberMeService as mentioned above. We injects the Jpa repository into the custom implementation to provide interactions with database when needed. 
-
-4. Forgot password function
-
-- When user click on "forgot password", user will be redirect to LoginController and get mapping method showForgotPasswordForm which then prompt user to enter there email. Once email is entered and submitted, user will be directed to post mapping method where loginService is called to resetPassword with provided email. 
-
-- In resetPassword method, we first retrieve user from database using their email. If user is found, we either get the verification token if exist in database ( for cases that user has selected forgot password but not yet reset it) or create a new one by generating a random string. The new token is then saved to database for later verification. Email then is sent to user using JavaMailSender with parameters  such as application's url, token's value, user info. 
-
-- For JavaMailSender to work, we need to create a Configuration class called JavaMailConfig in configuration package. Here we set username and password to  allow the application to log in to gmail. 
-
-- Once the email is sent, a GenericResponse is returned with MessageSource's getMessage(). MessageSource will read message defined in messages.properties in resources folder. 
-
-## Category Management 
-
-1. Add new category
-
-- When user select add new category, user will be directed to Category Controller - method showAddCategoryForm. This method addAttributes such as all categories, topLevelCategories to model so that we have all selections possible for parent category when creating a new one. 
-
-![alt text](image.png)
-
-- New category is created  and a flashAttribute is returned with either successful message or error. It is created using categoryService which does check if category's name has already existed. If it does exist, an error message will be thrown. We use jQuery script to display this message/error. NewCategoryId is also forwarded to the next request using redirectAttribute.addAttribute. The next request is actually get method again to regenerate the form. This time the get method has a new parameter which is newCategoryId, it adds that to the request sent to client. 
-
-- In addCategory.jsp, we validate newCategory attribute if exist to let a new button named addSize appear. Clicking on this button will submit a new request to Category controller get the addCategoryForm again and this time showing addSize form. 
-
-- The submited new size is added and redirection happens just as how it does for adding new category. 
-
-- All the new added sizes and categories are directly shown on category structure under the form after each refresh. 
-
-2. View Current Categories
-
-- This display the category structure with added option to edit the name of the existing categories and sizes. Each editing window for each category will have a display of current subcategories and sizes and options to add a new one under it. 
-- There are also button to delete categories and sizes. Clicking on this will leads to Category controller where categories and all subCategories under it will be deleted at once. One note is that we need to iterate over a copy of category.getSubcategories() using new ArrayList<>(category.getSubcategories()) to avoid ConcurrentModificationException - modifying and iterating over a collection at the same time. 
-
-- Before deleting a category, we implement a method to check if the category and subcategories under it has any associations with any products. If the method return true then we will not delete the category but throw an exception. 
-
-
-# Deployment notes
-## Switch to WAR package instead of JAR
- Since we use jsp files for front end, we need to package the app into WAR (Web Application Archive) specifically for web apps that can be deployed on servlet/Jsp containers. WAR file contain web applications like Html, jsp, js, servlets as well as java classes.
-
- STEP 1: pom.xlm
-
- 1. add the packaging type under < version> tag of the project :
- ```xml
-	<packaging>war</packaging>
-```
-2. Add the Maven WAR plugin in < build> < plugins> section:
-```xml
-<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-war-plugin</artifactId>
-    <version>3.3.2</version>
-</plugin>
-```
-3. update the spring-boot-maven plugin configuration to include: 
-```xml
-<plugin>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-maven-plugin</artifactId>
-    <configuration>
-        <addResources>true</addResources>
-        <excludes>
-            <exclude>
-                <groupId>org.projectlombok</groupId>
-                <artifactId>lombok</artifactId>
-            </exclude>
-        </excludes>
-        <mainClass>com.AllInSmall.demo.Application</mainClass>
-    </configuration>
-</plugin>
-```
-STEP 2: in main application class, extend SpringBootServletInitializer and override the configure method:
-```java
-@SpringBootApplication
-public class YourMainClass extends SpringBootServletInitializer {
-
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(YourMainClass.class);
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(YourMainClass.class, args);
-    }
-}
-```
---> 2 options available when running WAR : using embedded Tomcat server in SpringBoot application OR deploy it to an external servlet container.
---> this allows deploying in an external servlet container( like Tomcat,etc), configure launching application by servlet container rather than throught the main() method. This acts like a bridge between the servlet container's lifecycle and SpringBoot's application context. IDEs often have built-in servers that can run web application directly from the project structure which is different from running a packaged application (JAR or WAR) in a production environment. This class does not provide a container, but it helps the application initialize properly in an external container where embeded SpringBoot server run. Specifically, it implements WebApplicationInitializer. This means it's discovered and used by SpringServletContainerInitializer during the servlet container's startup process. 
-
-## AWS EC2
-
-* The war package and the database can be send to ec2 instance by following steps : 
-
-1. connect to ec2 from local machine 
-```
-ssh -i your-ec2-key.pem ec2-user@your-ec2-public-ip 
-```
-2. create a copy of database from Docker container to local machine then import it into the ec2 instance
-
-- find the id of docker container using "docker ps"
-- Use mysqldump command inside the Docker container to export database out of docker container to local machine
-```
-docker exec -i [container_name_or_id] mysqldump -u root -p[root_password] [database_name] > /path/to/your/desired/location/database_backup.sql
-```
-Alternatively, it can be broken into several steps: 
-1. First, log into your MySQL container:
-```bash
-docker exec -it [container_name_or_id] bash
-```
-2. Once inside the container, run mysqldump:
-```bash
-mysqldump -u root -p [database_name] > /tmp/database_backup.sql
-```
-3. Exit the container:
-```bash
-exit
-```
-4. Copy the file from the container to host machine
-```bash
-docker cp [container_name_or_id]:/tmp/database_backup.sql ~/Desktop/database_backup.sql
+src/main/resources/
+├── static/css/                   # Stylesheets
+├── static/js/                    # JavaScript files
+└── messages.properties           # Internationalization
 ```
 
-- Transfer the backup file into EC2:
-```bash
-scp -i your-ec2-key.pem database_backup.sql ec2-user@your-ec2-public-ip:/home/ec2-user/
-```
+## Tech Stack
 
-* Inside EC2 instance, we also need to install Java Jdk and Docker: 
+### Core Technologies
+- **Spring Boot** - Application framework and auto-configuration
+- **Spring MVC** - Web framework with DispatcherServlet
+- **Spring Security** - Authentication and authorization framework
+- **Spring Data JPA** - Data access and ORM layer
+- **JSP (JavaServer Pages)** - Server-side view templating
+- **MySQL** - Relational database for data persistence
 
-- Docker: 
+### Development Tools
+- **Maven** - Dependency management and build automation
+- **Embedded Tomcat** - Web server and servlet container
+- **Spring Boot DevTools** - Development productivity tools
+- **JavaMail API** - Email integration capabilities
 
-STEP 1: update all installed packages on Amazon Linux 2 system 
-```bash
-sudo yum update -y
-```
-STEP 2: install Docker
-```bash
-sudo amazon-linux-extras install docker
-```
-STEP 3: start Docker service
-```bash
-sudo service docker start
-```
-STEP 4:adds the ec2-user to the docker group, allowing the user to run Docker commands without sudo
-```bash
-sudo usermod -a -G docker ec2-user
-```
-STEP 6: verifying Docker access : This should display the Docker version without requiring sudo.
+### External Integrations
+- **PayPal REST API** - Payment processing and QR code generation
+- **Gmail SMTP** - Email service for notifications and verification
+- **Docker** - Containerization for deployment
 
-```bash
-docker --version
-```
-STEP 7: run a test docker command
-```bash
-docker run hello-world
-```
---> This command should pull the hello-world image and run it, confirming that Docker is working correctly.It's designed as a simple test to confirm that Docker is working by output a message to the console
+### Architecture Patterns
+- **Model-View-Controller (MVC)** - Separation of concerns in web layer
+- **Dependency Injection** - Spring container for bean management
+- **Role-Based Access Control (RBAC)** - Hierarchical permission system
+- **Custom Security Handlers** - Tailored authentication and authorization flows
 
-STEP 8: checking the group membership if any issue exists
-```bash
-groups ec2-user
-```
---->This command should list docker among the groups for ec2-user. If it doesn't, double-check the usermod command and ensure you logged out and back in properly
+## Authentication & Security Flow
 
-STEP 9: run mysql image 
-```bash
-docker pull mysql:latest
-```
-STEP 10: create volume on EC2 for persistent storage
-```bash
-docker volume create mysql_data
-```
-STEP 11: Start a new MySQL container on EC2:
-```bash
-docker run -d --name mysql_container -e MYSQL_ROOT_PASSWORD=your_root_password -v mysql_data:/var/lib/mysql -p 3306:3306 mysql:latest
-```
-STEP 12: import backup data into new container
-```bash
-docker exec -i mysql_container mysql -uroot -pyour_root_password < /home/ec2-user/all_databases_backup.sql
-```
-STEP 13: Update Spring Boot application.properties
-**If SpringBoot apps is also in Docker:** 
----> make sure both Spring Boot app container and mysql container is on the same network:
- ```bash
-      docker network create mynetwork
-      docker network connect mynetwork your_mysql_container
-      docker network connect mynetwork your_springboot_container
- ```
---->Then update your application.properties to use the container name instead of IP:
+1. **User Registration**: Email verification with token-based activation
+2. **Login Process**: Credentials validation with optional remember-me functionality
+3. **Security Filter Chain**: Multi-layer authentication and authorization filters
+4. **Role Authorization**: Hierarchical role system with granular permissions
+5. **Session Management**: Configurable session timeout with persistent login tokens
+6. **Password Recovery**: Secure email-based password reset workflow
 
-      ```bash
-      spring.datasource.url=jdbc:mysql://your_mysql_container:3306/your_database_name
-      ```
+## Responsive Design
 
-**If SpringBoot apps is not in Docker:**
-If the Spring Boot application is running on the host and not in a Docker container, we might need to use the Docker container's IP instead of "localhost"
---> get the container IP: 
-```
-docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' mysql_container
-```
---> update in application.properties:
+- **Server-Side Rendering**: JSP templates with responsive CSS frameworks
+- **Mobile-Optimized**: Touch-friendly interfaces for mobile devices
+- **Cross-Browser Support**: Compatible with modern web browsers
+- **Progressive Enhancement**: Graceful degradation for older browsers
 
- ```bash
-      spring.datasource.url=jdbc:mysql://[ container's IP]:3306/your_database_name
-      spring.datasource.username=your_username
-      spring.datasource.password=your_password
- ```
+## Business Intelligence Features
 
-- Java 
+- **Real-Time Analytics**: Live dashboard with key performance indicators
+- **Sales Reporting**: Comprehensive sales analysis by product and user
+- **Order Tracking**: Complete order lifecycle monitoring
+- **Data Visualization**: Charts and graphs for business insights
+- **Export Functionality**: Data export for external analysis tools
 
-STEP 1: Install Amazon Corretto 17
-   ```bash
-   sudo yum install java-17-amazon-corretto-devel
-   ```
+### Code Standards
+- Follow Spring Boot best practices and conventions
+- Use proper Spring annotations (@Service, @Repository, @Controller)
+- Implement proper exception handling with custom exceptions
+- Write meaningful method and class names following Java naming conventions
+- Use JSP best practices for view layer development
+- Ensure proper input validation and sanitization
+- Follow security best practices for authentication and authorization
+- Add comprehensive JavaDoc comments for public methods
+- Implement proper logging using SLF4J
+- Use Spring Security annotations for method-level security
+- Follow JPA best practices for entity relationships and queries
 
-STEP 2: Veriy Java installation
-```bash
-java -version
-```
+## License
 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+---
 
-
-
-
-
+**Built for comprehensive retail management and e-commerce solutions**
