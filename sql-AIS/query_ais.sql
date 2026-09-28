@@ -388,7 +388,7 @@ CREATE TABLE `users` (
   KEY `role_id` (`role_id`),
   CONSTRAINT `users_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
   CONSTRAINT `users_chk_1` CHECK ((`status` between 0 and 2))
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -397,7 +397,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,3,'staff','staff123','david','beckham','44556677','david@aisstaff.com.au',NULL,'2025-07-07 23:15:45.842432',0),(5,1,'admin','admin123','kat','nguyen',NULL,'kat@aisadmin.com.au',NULL,'2025-07-07 23:27:04.466130',0);
+INSERT INTO `users` VALUES (1,3,'staff','staff123','david','beckham','44556677','david@aisstaff.com.au',NULL,'2025-07-07 23:15:45.842432',0),(5,1,'admin','admin123','kat','nguyen',NULL,'kat@aisadmin.com.au',NULL,'2025-07-07 23:27:04.466130',0),(6,1,'test','test','demo','inspector',NULL,'test@aisdemo.com.au',NULL,NULL,0);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
