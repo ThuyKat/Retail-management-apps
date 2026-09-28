@@ -6,7 +6,6 @@ import com.AllInSmall.demo.model.Product;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,6 +20,8 @@ public class AddOrderDetailRequest {
 	Product product;
 	
 	int quantity;
+	
+	Integer sizeId;
 	
 	
 }

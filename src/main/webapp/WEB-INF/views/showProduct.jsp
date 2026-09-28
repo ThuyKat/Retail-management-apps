@@ -26,6 +26,8 @@
             margin-left: 10px;
         }
     </style>
+   
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 
@@ -33,6 +35,17 @@
 <jsp:include page="navbar.jsp" />
 </c:if>
     <h1>Product List</h1>
+        <!-- Add category selection dropdown -->
+    <div class="category-select">
+        <label for="categorySelect">Select Category: </label>
+        <select id="categorySelect" onchange="loadProducts()">
+            <option value="">All Categories</option>
+            <c:forEach items="${categories}" var="category">
+                <option value="${category.id}">${category.name}</option>
+            </c:forEach>
+        </select>
+    </div>
+    
     <form:form method="post" action="updatePrice" modelAttribute="productListWrapper">
         <table class="product-table">
             <thead>
@@ -41,6 +54,7 @@
                     <th>Name</th>
                     <th>Category</th>
                     <th>Price</th>
+                    <th>Sizes</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -55,7 +69,19 @@
                             <form:hidden path="products[${status.index}].id" />
                         </td>
                         <td>
-                            <a href="/product/details?productId=${product.id}" class="more-link">More</a>
+                            <c:choose>
+                                <c:when test="${not empty product.sizes}">
+                                    <c:forEach items="${product.sizes}" var="size" varStatus="sizeStatus">
+                                        ${size.name}<c:if test="${!sizeStatus.last}">, </c:if>
+                                    </c:forEach>
+                                </c:when>
+                                <c:otherwise>
+                                    N/A
+                                </c:otherwise>
+                            </c:choose>
+                        </td>
+                        <td>
+                            <a href="/product/${product.id}" class="more-link">More</a>
                         </td>
                     </tr>
                 </c:forEach>
@@ -64,4 +90,24 @@
         <button type="submit">Save Update</button>
     </form:form>
 </body>
+<c:if test="${currentURI == '/product/currentProductList'}">
+<script>
+        function loadProducts() {
+            var categoryId = document.getElementById('categorySelect').value;
+            window.location.href = '/product/currentProductList?categoryId=' + categoryId;
+        }
+        
+        window.onload = function() {
+            var message = '${message}';
+            var error = '${error}';
+            if (message) {
+                alert(message);
+            }
+            if (error) {
+                alert(error);
+            }
+        };
+        
+</script>
+</c:if>
 </html>

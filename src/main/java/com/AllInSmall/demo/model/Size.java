@@ -1,8 +1,10 @@
 package com.AllInSmall.demo.model;
 
+
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,13 +20,24 @@ public class Size {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
 
     @Column(nullable = false)
     private String name;
 
     @ManyToOne
     @JsonBackReference
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @JoinColumn(name = "product_id")
+    private Product product;
+    
+    @OneToMany(mappedBy ="size")
+    @JsonManagedReference
+    private List<OrderDetail> orderDetails;
+    
+    @Column(name="size_price")
+    private Double sizePrice;
+    
+    public Double getPrice() {
+        return sizePrice != null ? sizePrice : product.getPrice();
+    }
 }

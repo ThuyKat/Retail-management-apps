@@ -1,5 +1,6 @@
 package com.AllInSmall.demo.model;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -21,6 +22,12 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	
+	@Column(name = "created_date")
+	private LocalDateTime createdDate;
+	
+	@Column(name = "last_login")
+	private LocalDateTime lastLogin;
+	
 	private String username;
 	
 	private String password;
@@ -34,6 +41,7 @@ public class User {
 	private String mobile;
 	
 	private String email;
+	
 	
 	@OneToMany(mappedBy = "user")
 	@JsonManagedReference

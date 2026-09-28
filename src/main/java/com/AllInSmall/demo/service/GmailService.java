@@ -21,6 +21,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets.Details;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
@@ -28,7 +29,9 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.GmailScopes;
 
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class GmailService {
 	private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -73,8 +76,15 @@ public class GmailService {
 					.setJsonFactory(GsonFactory.getDefaultInstance()).setClientSecrets(clientId, clientSecret).build()
 					.setRefreshToken(refreshToken);
 			service = new Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName("AIS").build();
-			return service;
+			try {
+		        log.info(" Test the credential by making a simple API call");
+		        service.users().getProfile("me").execute();
+		    } catch (HttpResponseException e) {
+		        if (e.getStatusCode() == 400 || e.getStatusCode() == 401) {
+		        	service =null;
+		        }
 		} 
+		}
 		return service;
 	}
 

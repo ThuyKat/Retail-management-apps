@@ -19,7 +19,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@ToString(exclude= {"product","order"})
+@ToString(exclude= {"product","order","size"})
 public class OrderDetail  {
 
 @EmbeddedId
@@ -40,6 +40,11 @@ private Order order;
 private int quantity;
 
 private double price;
+
+@ManyToOne
+@JoinColumn(name="size_id")
+@JsonBackReference
+private Size size;
 
 @Column(name="created_by")	
 private String createdBy;

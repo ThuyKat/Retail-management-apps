@@ -73,22 +73,7 @@
             <button type="submit">Update Category</button>
         </form>
 
-        <h2>Add Size</h2>
-        <form action="/category/${category.id}/size" method="post">
-            <div class="form-group">
-                <label for="sizeName">Size Name:</label>
-                <input type="text" id="sizeName" name="name" required>
-            </div>
-            <button type="submit">Add Size</button>
-        </form>
-
-        <h2>Existing Sizes</h2>
-        <c:forEach items="${category.sizes}" var="size">
-            <div>
-                ${size.name}
-                <a href="/size/edit/${size.id}" class="edit-btn">Edit</a>
-            </div>
-        </c:forEach>
+       
     </div>
      
 </body>

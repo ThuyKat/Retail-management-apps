@@ -52,7 +52,7 @@
                         <td>${order.status}</td>
                         <td><fmt:formatNumber value="${order.totalPrice}" type="currency" currencyCode="AUD" /></td>
    						<td>
-                        <a href="/order/viewOrderList?action=viewSavedOrder&orderId=${order.id}">Update</a>
+                        <a href="/order/viewOrderList/${order.id}">Update</a>
                         </td>
                     </tr>
                 </c:forEach>

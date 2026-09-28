@@ -33,10 +33,13 @@ import com.AllInSmall.demo.repository.UserRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Controller
+@Tag(name = "Reports", description = " Report management APIs")
 @RequestMapping("/report")
 public class ReportController {
 	@Autowired
@@ -54,6 +57,7 @@ public class ReportController {
 //	@Autowired
 //	private ProductRepository productRepository;
 
+	@Operation(summary="Get form to generate sales by user report")
 	@GetMapping("/salesByUser")
 	public String getSalesByUser( Model model) {
 		List<User>users = userRepository.findAll();
@@ -66,7 +70,7 @@ public class ReportController {
 
 	}
 	
-
+	@Operation(summary="Get data to generate sales by user report")
 	@GetMapping("/salesByUser/data")
 	@ResponseBody
 	public ResponseEntity<?> getSalesByUsersData(
@@ -85,6 +89,7 @@ public class ReportController {
 	    }
 	}
 
+	@Operation(summary="Get data to generate sales by product report")
 	@GetMapping("/salesByProduct/data")
 	public ResponseEntity<?> getSalesByProductData(
 			@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -100,6 +105,7 @@ public class ReportController {
     }
 	}
 	
+	@Operation(summary="Get form to generate sales by Product report")
 	@GetMapping("/salesByProduct")
 	public String getSalesByProductPage(Model model) {
 	    log.info("Loading Order By Status report page");
@@ -113,6 +119,7 @@ public class ReportController {
 	    return "salesByProduct";
 	}
 	
+	@Operation(summary="Get form to generate sales by status report")
 	@GetMapping("/ordersByStatus")
 	public String getOrdersByStatusPage(Model model) {
 	    log.info("Loading Order By Status report page");
@@ -120,6 +127,7 @@ public class ReportController {
 	    return "ordersByStatus";
 	}
 	
+	@Operation(summary="Get data to generate sales by status report")
 	@GetMapping("/ordersByStatus/data")
 	@ResponseBody
 	public ResponseEntity<?> getOrdersByStatusData(
@@ -138,7 +146,7 @@ public class ReportController {
 	    }
 	}
 	
-	
+	@Operation(summary="Get all orders by status")
 	@GetMapping("/ordersByStatus/details")
 	public String getOrderDetails(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,

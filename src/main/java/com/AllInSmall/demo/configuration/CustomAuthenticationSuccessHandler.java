@@ -1,6 +1,8 @@
 package com.AllInSmall.demo.configuration;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 		Optional<User> userOptional = userRepository.findByUsername(username);
 		if(userOptional.isPresent()) {
 			User user = userOptional.get();
+			user.setLastLogin(LocalDateTime.now());
+			userRepository.save(user);
 			sessionOrder.setUser(user);
 		}
 		

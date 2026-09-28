@@ -1,6 +1,7 @@
 package com.AllInSmall.demo.configuration;
 
 import java.util.Stack;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 public class PreviousPageInterceptor implements HandlerInterceptor {
+//    private static final Pattern PRODUCT_DETAIL_PATTERN = Pattern.compile("^/product/\\d+$");
 
 	@Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -25,6 +27,7 @@ public class PreviousPageInterceptor implements HandlerInterceptor {
             navigationStack = new Stack<>();
             session.setAttribute("navigationStack", navigationStack);
         }
+        
      // Check if the current path is in the excluded paths
         if (currentPath.contains("/css/")|| 
         	currentPath.contains("/js/")||
@@ -35,7 +38,7 @@ public class PreviousPageInterceptor implements HandlerInterceptor {
         	currentPath.contains("/favicon.ico")||
         	currentPath.contains("/user/oauth2callback")||
         	currentPath.contains("/forgotPassword")||
-        	currentPath.contains("/user/resetPassword")||
+        	currentPath.contains("/resetPassword")||
         	currentPath.contains("/accessDenied")||
         	currentPath.contains("/register/confirmRegistration")||
         	currentPath.contains("/register/finaliseRegistration")||
@@ -43,7 +46,12 @@ public class PreviousPageInterceptor implements HandlerInterceptor {
         	currentPath.contains("/report/salesByProduct/data")||
         	currentPath.contains("/report/ordersByStatus/data")||
         	currentPath.contains("/report/ordersByStatus/details")||
-        	currentPath.contains("/category/{categoryId}/size"))
+        	currentPath.contains("/product/{productId}/size")||
+        	currentPath.contains("/product/delete")||
+        	currentPath.contains("/product/updatePrice")) 
+//        	||
+//            PRODUCT_DETAIL_PATTERN.matcher(currentPath).matches()// Use regex for product detail pages
+
         {
             return true; // Skip adding to the navigation stack
         }

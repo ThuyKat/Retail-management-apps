@@ -46,11 +46,15 @@
 <jsp:include page="navbar.jsp"/>
     <div class="container-size">
         <h1>Edit Size</h1>
-        <form action="/category/size/update" method="post">
+        <form action="/product/size/update" method="post">
             <input type="hidden" name="id" value="${size.id}">
             <div class="form-group">
                 <label for="sizeName" class="size">Size Name:</label>
                 <input type="text" id="sizeName" name="name" value="${size.name}" class="size" required>
+            </div>
+            <div class="form-group">
+                <label for="sizePrice" class="size">Size Price:</label>
+                <input type="number" id="sizePrice" name="price" value="${size.price}" class="size" step="0.01" min="0" required>
             </div>
             <button type="submit" class="size">Update Size</button>
         </form>

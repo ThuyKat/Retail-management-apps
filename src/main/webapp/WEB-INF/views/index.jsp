@@ -28,6 +28,14 @@
             }
         });
         </script>
+ <style>
+    .management-bar {
+        background-color: #f0f0f0;
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+</style>
 </head>
 <body>
 	<!-- include the banner -->
@@ -36,7 +44,11 @@
         <i class="fa-solid fa-bars hambuger-icon"></i>
         <h1 class="menu-nav-brand">QUICKSHOP</h1>
     </nav> -->
-
+<%-- <c:if test="${userRole != 'Staff'}">
+    <div class="management-bar">
+        <a href="/management">Back to Management Panel</a>
+    </div>
+</c:if> --%>
 
   <%--  <!-- Display success message if it exists -->
     <c:if test="${not empty message}">
@@ -72,14 +84,24 @@
                     <div class="product-details">
                         <div class="product-name">${orderItem.product.name}</div>
                         <div class="product-price">$${orderItem.product.price}</div>
+                          <c:if test="${not empty orderItem.product.sizes}">
+                            <div class="product-sizes">
+								<form:select path="orderItems[${status.index}].sizeId">
+								    <form:option value="" label="Select Size"/>
+								    <form:options items="${orderItem.product.sizes}" itemValue="id" itemLabel="name"/>
+								</form:select>                           
+							</div>
+                 			</c:if>
                         <div class="product-quantity">
                             <input type="button" value="-" class="button-minus" data-field="orderItems[${status.index}].quantity">
                             <form:input path="orderItems[${status.index}].quantity" type="number" step="1" min="0" class="quantity-field text-center" />
                             <input type="button" value="+" class="button-plus" data-field="orderItems[${status.index}].quantity">
                             <form:hidden path="orderItems[${status.index}].product.id" />
                         </div>
+                       
                     </div>
                 </div>
+               
             </c:forEach>
             
       

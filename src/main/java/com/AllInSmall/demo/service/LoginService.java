@@ -76,7 +76,7 @@ public class LoginService {
 	}
 		//
 	    private SimpleMailMessage constructResetTokenEmail(final String contextPath, final Locale locale, final String token, final User user) {
-	    	 final String url = contextPath + "/user/resetPassword?token=" + token;
+	    	 final String url = contextPath + "/resetPassword?token=" + token;
 	         final String message = messages.getMessage("message.resetPassword", null, locale);
 	         return constructEmail("Reset Password", message + " \r\n" + url, user);
 	    }

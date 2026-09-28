@@ -16,9 +16,9 @@
     <h1>Manage User</h1>
     <div class="options">
         <a href="/user/register" class="option">Register User</a>
-        <a href="/currentUserList" class="option">Current User List</a>
-        <a href="/timetable" class="option">Timetable</a>
-    </div>
+        <a href="/user/view" class="option">Current User List</a>
+<!--         <a href="/timetable" class="option">Timetable</a>
+ -->    </div>
     </div>
       <%--  <footer>
             <c:if test="${not empty sessionScope.previousPage}">

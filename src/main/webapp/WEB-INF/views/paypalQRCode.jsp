@@ -63,10 +63,10 @@
             </c:choose>
         </div>
         <div class="instructions">
-            <p>1. Open your PayPal app</p>
-            <p>2. Tap 'Scan/Pay'</p>
-            <p>3. Scan this QR code</p>
-            <p>4. Complete the payment in your app</p>
+            <p>1. Scan this QR code with your camera</p>
+            <p>2. Tap 'Pay with a Card'</p>
+            <p>3. Enter your email for billing</p>
+            <p>4. Complete the payment</p>
         </div>
         <button class="cancel-button" onclick="window.location.href='http://localhost:8080/order/placeOrder?action=paypal-cancel'">Cancel Payment</button>
     </div>

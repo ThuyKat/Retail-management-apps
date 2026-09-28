@@ -1,6 +1,7 @@
 package com.AllInSmall.demo.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -17,7 +18,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity // for mapping to db 
-@ToString(exclude= {"category","orderDetails"})
+@ToString(exclude= {"category","orderDetails","sizes"})
 @Table(name="products")
 public class Product {
 @Id
@@ -70,6 +71,10 @@ private String description;
 @OneToMany(mappedBy = "product") // name of object product in OrderDetail
 @JsonManagedReference
 private List<OrderDetail>orderDetails;
+
+@OneToMany(mappedBy = "product", cascade = CascadeType.ALL,fetch = FetchType.EAGER) // make sure when I call product.getSize() all related sizes is loaded from database
+@JsonManagedReference
+private List<Size> sizes = new ArrayList<>();
 
 @PrePersist
 protected void onCreate() {

@@ -40,7 +40,6 @@ private List<Category> subcategories = new ArrayList<>();
 @Column(nullable = false)
 private int level;
 
-@OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-private List<Size> sizes = new ArrayList<>();
+
 
 }

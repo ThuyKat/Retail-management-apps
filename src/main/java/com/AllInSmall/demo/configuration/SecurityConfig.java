@@ -90,9 +90,10 @@ public class SecurityConfig {
 
 				.requestMatchers("/manageProduct").hasRole("Owner")
 				
-				.requestMatchers("/product/**").hasRole("Owner").requestMatchers("/product/**").hasAuthority("PRODUCT_MANAGE") // add product,update
-																									// product
-																									// price,/product/details
+				.requestMatchers("/product/**").hasRole("Owner").requestMatchers("/product/**").hasAuthority("PRODUCT_MANAGE") // add product,update product price,/product details
+				.requestMatchers("/user/view/**").hasRole("Manager")
+				.requestMatchers("/user/update").hasRole("Manager")
+				.requestMatchers("/user/**").hasRole("Manager")
 				.requestMatchers("/manageUser", "/manageUser", "/manageOrder","/management").hasRole("Manager")
 				
 				.requestMatchers("/viewReport").hasRole("Manager").requestMatchers("/viewReport")
@@ -106,9 +107,10 @@ public class SecurityConfig {
 
 				.requestMatchers("/WEB-INF/views/**", "/css/**", "/js/**", "/assets/**", "/actuator/**",
 						"/register/confirmRegistration**", "/register/finaliseRegistration", "/forgotPassword",
-						"/user/resetPassword","/accessDenied","/navigate","https://cdn.jsdelivr.net/npm/chart.js","data:image/**")
+						"/resetPassword","/accessDenied","/navigate","https://cdn.jsdelivr.net/npm/chart.js","data:image/**","/api-docs/**")
 				.permitAll()
-				.anyRequest().denyAll()
+				.anyRequest()
+				.denyAll()
 
 		).formLogin(form -> form.loginPage("/login").loginProcessingUrl("/perform_login").successHandler(successHandler) // Inject
 																											// handler

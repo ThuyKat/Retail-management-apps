@@ -1,5 +1,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 
 <nav class="menu-nav-bar">
     <div class="nav-content">
@@ -7,12 +9,17 @@
             <form id="logoutForm" action="/perform_logout" method="post" >
     		<button type="submit" class="logout-btn">Logout</button>
 			</form>
-            <h1 class="menu-nav-brand">QUICKSHOP</h1>
-        </div>
-        <div class="nav-right">
-            <span class="welcome-message">Welcome, <c:out value="${username}" /></span>
+			
+            <h1 class="menu-nav-brand"><a href ="/index" class="logo">QUICKSHOP</a></h1>
             
         </div>
+       <div class="nav-right">
+		    <span class="welcome-message">
+		        <c:if test="${not empty pageContext.request.userPrincipal}">
+		            Welcome, ${pageContext.request.userPrincipal.name}
+		        </c:if>
+		    </span>
+		</div>
          
             <c:if test="${not empty sessionScope.navigationStack && sessionScope.navigationStack.size() > 1}">
             <a href="/navigate" class="nav-option"> &lt; Back</a>
@@ -74,7 +81,6 @@
     background-color: #e74c3c;
     color: white;
     padding: 12px 20px;
-    border-radius: 10px; /* More curve */
     text-decoration: none;
     font-weight: bold;
     border: none;
@@ -108,5 +114,9 @@
 .option:hover, .nav-option:hover {
     background-color: #00008B; /* Dark blue on hover */
     color: #fff; /* Ensure text remains white on hover */
+}
+.logo{
+text-decoration:none;
+color:#fff;
 }
 </style>
