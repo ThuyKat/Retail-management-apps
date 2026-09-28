@@ -26,7 +26,7 @@
         }
         table {
             width: 100%;
-            border-collapse: collapse;
+            border-collapse: collapse; /*clean, grid-like appearance for table, avoid double border*/
             margin-top: 20px;
         }
         th, td {
@@ -56,18 +56,20 @@
             <thead>
                 <tr>
                     <th>Product</th>
+                    <th>Size</th>
                     <th>Quantity</th>
                     <th>Price</th>
-                    <th>Subtotal</th>
+                    <th>SubTotal</th>
                 </tr>
             </thead>
             <tbody>
                 <c:forEach var="orderDetail" items="${order.orderDetails}">
                     <tr>
                         <td>${orderDetail.product.name}</td>
+                        <td>${orderDetail.size.name}
                         <td>${orderDetail.quantity}</td>
-                        <td>$<fmt:formatNumber value="${orderDetail.product.price}" pattern="#,##0.00"/></td>
-                        <td>$<fmt:formatNumber value="${orderDetail.quantity * orderDetail.product.price}" pattern="#,##0.00"/></td>
+                        <td>$<fmt:formatNumber value="${orderDetail.price}" pattern="#,##0.00"/></td>
+                        <td>$<fmt:formatNumber value="${orderDetail.quantity * orderDetail.price}" pattern="#,##0.00"/></td>
                     </tr>
                 </c:forEach>
             </tbody>

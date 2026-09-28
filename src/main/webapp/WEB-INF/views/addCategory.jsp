@@ -48,20 +48,7 @@
         button.add-category:hover {
             background-color: #45a049;
         }
-        .btn.toggle {
-            background-color: #008CBA;
-        }
-        .btn.toggle:hover {
-            background-color: #007B9A;
-        }
-        .message {
-            background-color: #d4edda;
-            border-color: #c3e6cb;
-            color: #155724;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
+       
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -70,7 +57,7 @@
     <div class="container-category">
         <h1>Category Management</h1>
         
-        <c:if test="${empty newCategoryId}">
+       
             <h2>Add New Category</h2>
             <form action="/category" method="post">
                 <div class="form-group">
@@ -88,58 +75,22 @@
                 </div>
                 <button type="submit" class="add-category">Add Category</button>
             </form>
-        </c:if>
         
-        <c:if test="${not empty newCategoryId}">
-            <p class="message">New category has been saved!</p>
-            
-            <form method="get" action="/category/form" style="display: inline-block; margin-right: 10px;">
-                <input type="hidden" name="newCategoryId" value="${newCategoryId}">
-                <button type="submit" class="btn toggle" name="addSize" value="true">Add Sizes</button>
-            </form>
-            
-            <form method="get" action="/category/form" style="display: inline-block;">
-                <button type="submit" class="btn toggle" name="addSize" value="false">Add New Category</button>
-            </form>
-            
-            <c:if test="${addSize}">
-                <h2>Add New Size</h2>
-                <form action="/category/${newCategoryId}/size" method="post">
-                    <div class="form-group">
-                        <label for="sizeName">Size Name:</label>
-                        <input type="text" id="sizeName" name="name" required>
-                    </div>
-                    <button type="submit">Add Size</button>
-                </form>
-            </c:if>
-        </c:if>
+        
+ 
 
         <h2>Category Structure</h2>
         <div class="category-tree">
         <c:forEach items="${topLevelCategories}" var="category">
             <div>
                 ${category.name}
-                <c:if test="${not empty category.sizes}">
-                     <div class="category-tree">
-                        Sizes:
-                     	<c:forEach items="${category.sizes}" var="size">
-                            <div>${size.name}</div>
-                         </c:forEach>
-                      </div>
-                </c:if>
+              
                 <c:if test="${not empty category.subcategories}">
                     <div class="category-tree">
                         <c:forEach items="${category.subcategories}" var="subcategory">
                             <div>
                                 ${subcategory.name}
-                                <c:if test="${not empty subcategory.sizes}">
-                                    <div class="category-tree">
-                                        Sizes:
-                                        <c:forEach items="${subcategory.sizes}" var="size">
-                                            <div>${size.name}</div>
-                                        </c:forEach>
-                                    </div>
-                                </c:if>
+                                
                             </div>
                         </c:forEach>
                     </div>

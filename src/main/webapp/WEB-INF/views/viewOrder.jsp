@@ -61,18 +61,29 @@
             <thead>
                 <tr>
                     <th>Product</th>
+                    <th>Size </th>
                     <th>Quantity</th>
                     <th>Price</th>
-                    <th>Subtotal</th>
+                    <th>SubTotal</th>
                 </tr>
             </thead>
             <tbody>
                 <c:forEach var="orderDetail" items="${order.orderDetails}">
                     <tr>
-                        <td>${orderDetail.product.name}</td>
+                        <td>${orderDetail.product.name} </td>
+                        <td>
+                        <c:choose>
+                                <c:when test="${not empty orderDetail.size}">
+                                    ${orderDetail.size.name}
+                                </c:when>
+                                <c:otherwise>
+                                    N/A
+                                </c:otherwise>
+                            </c:choose>
+                        </td>
                         <td>${orderDetail.quantity}</td>
-                        <td>$<fmt:formatNumber value="${orderDetail.product.price}" pattern="#,##0.00"/></td>
-                        <td>$<fmt:formatNumber value="${orderDetail.quantity * orderDetail.product.price}" pattern="#,##0.00"/></td>
+                        <td>$<fmt:formatNumber value="${orderDetail.price}" pattern="#,##0.00"/></td>
+                        <td>$<fmt:formatNumber value="${orderDetail.quantity * orderDetail.price}" pattern="#,##0.00"/></td>
                     </tr>
                 </c:forEach>
             </tbody>
@@ -94,6 +105,6 @@
         </form>
     </c:if>
     
-    <a href="/" class="link">Continue Shopping</a>
+    <a href="/index" class="link">Continue Shopping</a>
 </body>
 </html>

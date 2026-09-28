@@ -193,6 +193,31 @@ body {
     right: -10px; /* Adjust the right position as needed */
      z-index: 1;
 }
+.product-sizes {
+    margin-top: 10px; /* Space above the size selection */
+    padding: 10px; /* Padding around the size selection */
+    border: 1px solid #ddd; /* Light border around the size selection */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #f9f9f9; /* Light background color */
+    display: flex; /* Use flexbox for horizontal alignment */
+    flex-wrap: wrap; /* Allow wrapping to next line if needed */
+}
+
+.product-sizes label {
+    margin-right: 15px; /* Space between labels */
+    cursor: pointer; /* Change cursor to pointer on hover */
+    font-size: 14px; /* Smaller font size for size labels */
+}
+
+.product-sizes input[type="radio"] {
+    margin-right: 5px; /* Space between radio button and label */
+    accent-color: #007bff; /* Change the color of the radio button */
+}
+
+.product-sizes input[type="radio"]:checked + label {
+    font-weight: bold; /* Bold text for selected size */
+    color: #007bff; /* Change text color for selected size */
+}
 /* .alert {
     padding: 10px;
     margin-bottom: 15px;

@@ -33,8 +33,7 @@
             background-color: #f9f9f9;
             border-radius: 3px;
         }
-        .edit-btn {
-            background-color: #4CAF50;
+        .edit-btn, .delete-btn {
             color: white;
             padding: 5px 10px;
             border: none;
@@ -44,8 +43,17 @@
             font-size: 0.9em;
             margin-left: 10px;
         }
+        .edit-btn {
+            background-color: #4CAF50;
+        }
         .edit-btn:hover {
             background-color: #45a049;
+        }
+        .delete-btn {
+            background-color: #f44336;
+        }
+        .delete-btn:hover {
+            background-color: #d32f2f;
         }
     </style>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -59,34 +67,16 @@
                 <div class="category-item">
                     ${category.name}
                     <a href="/category/edit/${category.id}" class="edit-btn">Edit</a>
-                    <c:if test="${not empty category.sizes}">
-                        <div class="category-tree">
-                            Sizes:
-                            <c:forEach items="${category.sizes}" var="size">
-                                <div class="size-item">
-                                    ${size.name}
-                                    <a href="/category/size/edit/${size.id}" class="edit-btn">Edit</a>
-                                </div>
-                            </c:forEach>
-                        </div>
-                    </c:if>
+                    <a href="/category/delete/${category.id}" class="delete-btn" onclick="return confirm('Are you sure you want to delete this category?')">Delete</a>
+                    
                     <c:if test="${not empty category.subcategories}">
                         <div class="category-tree">
                             <c:forEach items="${category.subcategories}" var="subcategory">
                                 <div class="category-item">
                                     ${subcategory.name}
                                     <a href="/category/edit/${subcategory.id}" class="edit-btn">Edit</a>
-                                    <c:if test="${not empty subcategory.sizes}">
-                                        <div class="category-tree">
-                                            Sizes:
-                                            <c:forEach items="${subcategory.sizes}" var="size">
-                                                <div class="size-item">
-                                                    ${size.name}
-                                                    <a href="/category/size/edit/${size.id}" class="edit-btn">Edit</a>
-                                                </div>
-                                            </c:forEach>
-                                        </div>
-                                    </c:if>
+                                    <a href="/category/delete/${subcategory.id}" class="delete-btn" onclick="return confirm('Are you sure you want to delete this subcategory?')">Delete</a>
+                                    
                                 </div>
                             </c:forEach>
                         </div>
@@ -95,7 +85,7 @@
             </c:forEach>
         </div>
     </div>
-     <script>
+    <script>
         $(document).ready(function() {
             var message = "${message}";
             if (message) {

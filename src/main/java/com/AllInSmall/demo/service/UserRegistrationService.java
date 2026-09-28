@@ -2,6 +2,7 @@ package com.AllInSmall.demo.service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -69,7 +70,11 @@ public class UserRegistrationService {
 				.role(role)
 				.status(UserStatus.INACTIVE)
 				.build();
-		userRepository.save(user);
+		User userDB = userRepository.save(user);
+		//set a default username 
+		userDB.setUsername("DefaultUsername_"+new Random().nextInt(100));
+		userRepository.save(userDB);
+		
 		
 		//Generate a verification token
 		String token = UUID.randomUUID().toString();

@@ -85,6 +85,7 @@
                     <thead>
                         <tr>
                             <th>Product</th>
+                            <th>Size</th>
                             <th>Quantity</th>
                             <th>Price</th>
                             <th>SubTotal</th>
@@ -94,9 +95,10 @@
                         <c:forEach var="orderDetail" items="${orderDetails}">
                             <tr>
                                 <td>${orderDetail.product.name}</td>
+                                <td>${orderDetail.size.name}</td>
                                 <td>${orderDetail.quantity}</td>
-                                <td>$<fmt:formatNumber value="${orderDetail.product.price}" pattern="#,##0.00"/></td>
-                                <td>$<fmt:formatNumber value="${orderDetail.quantity * orderDetail.product.price}" pattern="#,##0.00"/></td>
+                                <td>$<fmt:formatNumber value="${orderDetail.price}" pattern="#,##0.00"/></td>
+                                <td>$<fmt:formatNumber value="${orderDetail.quantity * orderDetail.price}" pattern="#,##0.00"/></td>
                             </tr>
                         </c:forEach>
                     </tbody>
@@ -110,7 +112,7 @@
                 </div>
             </c:if>
             
-            <form id="statusForm" method="post" action="/order/viewSavedOrder">
+            <form id="statusForm" method="post" action="/order/viewOrderList/${orderId}">
             	<input type="hidden" name="action" value="updateOrderStatus">
                 <input type="hidden" name="orderId" value="${orderId}">
                 <input type="hidden" name="userId" value="${userId}">
@@ -125,7 +127,7 @@
                 <button type="submit" class="btn btn-primary">Update Status</button>
                 </form>
                 <hr>
-                <form id="commentForm" method="post" action="/order/viewSavedOrder">
+                <form id="commentForm" method="post" action="/order/viewOrderList/${orderId}">
                 <input type="hidden" name="action" value="addComment">
     			<input type="hidden" name="orderId" value="${orderId}">
     			<input type="hidden" name="userId" value="${userId}">

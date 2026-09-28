@@ -1,5 +1,6 @@
 package com.AllInSmall.demo.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,18 +9,20 @@ import org.springframework.stereotype.Service;
 import com.AllInSmall.demo.model.Category;
 import com.AllInSmall.demo.model.Size;
 import com.AllInSmall.demo.repository.CategoryRepository;
+import com.AllInSmall.demo.repository.ProductRepository;
 import com.AllInSmall.demo.repository.SizeRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 
 @Service
 public class CategoryService {
 
 	@Autowired
     private CategoryRepository categoryRepository;
-
+    
     @Autowired
-    private SizeRepository sizeRepository;
+    private ProductRepository productRepository;
     
     public Category addCategory(String name, Integer parentId) {
     	 // Check if a category with the same name already exists (case-insensitive)
@@ -41,16 +44,7 @@ public class CategoryService {
         return categoryRepository.save(category);
     }
     
-    public Size addSize(String name, Integer categoryId) {
-        Category category = categoryRepository.findById(categoryId)
-            .orElseThrow(() -> new EntityNotFoundException("Category not found"));
-
-        Size size = new Size();
-        size.setName(name);
-        size.setCategory(category);
-
-        return sizeRepository.save(size);
-    }
+ 
     
 
     public List<Category> getTopLevelCategories() {
@@ -61,12 +55,9 @@ public class CategoryService {
 //        return categoryRepository.findByParentId(parentId);
 //    }
 
-    public List<Size> getSizes(int categoryId) {
-        return sizeRepository.findByCategoryId(categoryId);
-    }
+   
 
 	public List<Category> getAllCategories() {
-		// TODO Auto-generated method stub
 		return categoryRepository.findAll();
 	}
     
@@ -79,13 +70,41 @@ public class CategoryService {
 		
 	}
 
-	public Size getSizeById(int sizeId) {
-		// TODO Auto-generated method stub
-		return sizeRepository.findById(sizeId).orElseThrow(() -> new EntityNotFoundException("Size not found with id: " + sizeId));
+	@Transactional
+	public void deleteCategory(Integer id) {
+		Category category = categoryRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Category not found"));
+		if(categoryHasProducts(category)) {
+			throw new IllegalStateException("Cannot delete category.It or its subcategories have aossicated products");
+		}
+		
+		deleteCategoryRecursively(category);
+	
 	}
 
-	public void updateSize(Size size) {
-		sizeRepository.save(size);
+	private boolean categoryHasProducts(Category category) {
+		//check if the current category has products
+		if(!productRepository.findProductByCategoryId(category.getId()).isEmpty()) {
+			return true;
+		}
+		
+		//recursively check subCategories
+		for (Category subCategory : category.getSubcategories()) {
+			if(categoryHasProducts(subCategory)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void deleteCategoryRecursively(Category category) {
+		// recursively delete all subCategories
+		for(Category subCategory : new ArrayList<>(category.getSubcategories())) { // this is to avoid iterating over a collection and modifying it at the same time -> ConcurrentModificationException
+			deleteCategoryRecursively(subCategory);
+		}
+		//Finally delete the category itself
+		categoryRepository.delete(category);
 		
 	}
+
+	
 }

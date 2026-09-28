@@ -1,6 +1,7 @@
 package com.AllInSmall.demo.controller;
 
 import java.util.List;
+import java.util.Stack;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,19 +10,22 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.AllInSmall.demo.model.Category;
-import com.AllInSmall.demo.model.Size;
 import com.AllInSmall.demo.service.CategoryService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/category")
+@Tag(name = "Categories", description = "Category management APIs")
 public class CategoryController {
 
 	@Autowired
 	private CategoryService categoryService;
 	
+	@Operation(summary = "View all categories")
 	@GetMapping
 	public String viewCategory(Model model) {
 		model.addAttribute("categories", categoryService.getAllCategories());
@@ -30,33 +34,30 @@ public class CategoryController {
 		return "viewCategory";
 	}
 
+	@Operation(summary = "View form to add new category")
 	@GetMapping("/form")
-	public String showAddCategoryForm(Model model,
-			@RequestParam(name = "addSize", required = false, defaultValue = "false") boolean addSize,
-			@RequestParam(name = "newCategoryId", required = false) Integer newCategoryId) {
+	public String showAddCategoryForm(Model model,HttpSession session) {
 		model.addAttribute("categories", categoryService.getAllCategories());
-
-		if (newCategoryId != null) {
-			model.addAttribute("newCategoryId", newCategoryId);
-		}
-		if (addSize && newCategoryId != null) {
-			model.addAttribute("addSize", addSize);
-		}
 
 		List<Category> topLevelCategories = categoryService.getTopLevelCategories();
 		model.addAttribute("topLevelCategories", topLevelCategories);
-
+		@SuppressWarnings("unchecked")
+		Stack<String> navigationStack = (Stack<String>) session.getAttribute("navigationStack");
+		navigationStack.pop(); //pop the current uri
+		 session.setAttribute("navigationStack",navigationStack);
 		return "addCategory";
+		
 	}
 
+	@Operation(summary = "Add new category")
 	@PostMapping
 	public String addCategory(@RequestParam(required = true, name = "name") String name,
 			@RequestParam(required = false, name = "parentId") Integer parentId, Model model,
 			RedirectAttributes redirectAttributes) {
 		try {
-			Category category = categoryService.addCategory(name, parentId);
+			categoryService.addCategory(name, parentId);
 			redirectAttributes.addFlashAttribute("message", "Category added successfully");
-			redirectAttributes.addAttribute("newCategoryId", category.getId());
+			
 
 		} catch (Exception e) {
 			redirectAttributes.addFlashAttribute("error", "Error adding category: " + e.getMessage());
@@ -64,65 +65,27 @@ public class CategoryController {
 		return "redirect:/category/form";
 	}
 
-	@PostMapping("/{categoryId}/size")
-	public String addSize(@PathVariable int categoryId, @RequestParam(name = "name") String name, RedirectAttributes redirectAttributes, HttpServletRequest request) {
-		try {
-			Size size = categoryService.addSize(name, categoryId);
-			Category category = categoryService.getCategoryById(categoryId);
 
-			redirectAttributes.addFlashAttribute("message",
-					"new sized " + size.getName() + " is saved for category :" + category.getName());
-		} catch (Exception e) {
-			redirectAttributes.addFlashAttribute("error", "Error adding size: " + e.getMessage());
-		}
-		redirectAttributes.addAttribute("newCategoryId", categoryId);
-		redirectAttributes.addAttribute("addSize", true);
-		String refererURL = request.getHeader("Referer");
-		return "redirect:"+refererURL;
-	}
-	
+	@Operation(summary = "Get category by ID")
 	@GetMapping("/edit/{categoryId}")
-	public String editCategory(@PathVariable int categoryId,Model model) {
+	public String editCategory(@PathVariable int categoryId,Model model,HttpSession session) {
 		Category category = categoryService.getCategoryById(categoryId);
 		List<Category>allCategories = categoryService.getAllCategories();
 		model.addAttribute("category", category);
 		model.addAttribute("allCategories", allCategories);
+		@SuppressWarnings("unchecked")
+		Stack<String> navigationStack = (Stack<String>) session.getAttribute("navigationStack");
+		navigationStack.pop(); //pop the current uri
+		 session.setAttribute("navigationStack",navigationStack);
 		return "editCategory";
 	}
 	
-	@GetMapping("/size/edit/{sizeId}")
-	public String editSize(@PathVariable int sizeId,Model model) {
-		Size size = categoryService.getSizeById(sizeId);
-		model.addAttribute("size", size);
-		return "editSize";
-	}
-	
-	@PostMapping("/size/update")
-	public String updateSize(@RequestParam(required=true,name="name")String sizeName, @RequestParam(required=true,name="id") Integer sizeId,RedirectAttributes redirectAttributes) {
-		try {
-			Size size = categoryService.getSizeById(sizeId);
-			if(size ==null) {
-				 throw new EntityNotFoundException("Size not found with id: " + sizeId);
-			}
-			size.setName(sizeName);
-			categoryService.updateSize(size);
-
-	        redirectAttributes.addFlashAttribute("message", "Size is updated successfully");
-	    } catch (EntityNotFoundException e) {
-	        redirectAttributes.addFlashAttribute("error", e.getMessage());
-	    } catch (Exception e) {
-	        redirectAttributes.addFlashAttribute("error", "Error updating category: " + e.getMessage());
-	    }
-
-	    return "redirect:/category";
-		
-	}
-	
+	@Operation(summary = "Edit category")
 	@PostMapping("/update")
 	public String updateCategory(@RequestParam(required = true, name = "id") Integer categoryId,
 	                             @RequestParam(required = true, name = "name") String categoryName,
 	                             @RequestParam(required = false, name = "parentId") Integer parentId,
-	                             RedirectAttributes redirectAttributes) {
+	                             RedirectAttributes redirectAttributes, HttpSession session) {
 	    try {
 	        Category category = categoryService.getCategoryById(categoryId);
 	        if (category == null) {
@@ -146,7 +109,7 @@ public class CategoryController {
 
 	        // Save the updated category
 	        categoryService.updateCategory(category);
-
+	        
 	        redirectAttributes.addFlashAttribute("message", "Category updated successfully");
 	    } catch (EntityNotFoundException e) {
 	        redirectAttributes.addFlashAttribute("error", e.getMessage());
@@ -154,8 +117,32 @@ public class CategoryController {
 	        redirectAttributes.addFlashAttribute("error", "Error updating category: " + e.getMessage());
 	    }
 
+	    @SuppressWarnings("unchecked")
+		Stack<String> navigationStack = (Stack<String>) session.getAttribute("navigationStack");
+		navigationStack.pop(); //pop the current uri
+		 session.setAttribute("navigationStack",navigationStack);
 	    return "redirect:/category";
 	}
+	
+	@Operation(summary = "Get category by ID")
+	@GetMapping("/delete/{id}")
+	public String deleteCategory (@PathVariable Integer id, RedirectAttributes redirectAttributes, HttpSession session) {
+		try {
+			categoryService.deleteCategory(id);
+			
+			redirectAttributes.addFlashAttribute("message","Category deleted successfully");
+			
+		}catch(Exception e) {
+			redirectAttributes.addFlashAttribute("error","Failed to delete category");
+			e.printStackTrace();
+		}
+		@SuppressWarnings("unchecked")
+		Stack<String> navigationStack = (Stack<String>) session.getAttribute("navigationStack");
+		navigationStack.pop(); //pop the current uri
+		 session.setAttribute("navigationStack",navigationStack);
+		return "redirect:/category";
+	}
+	
 	
 	
 

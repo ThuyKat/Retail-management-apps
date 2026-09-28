@@ -16,7 +16,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductDTO {
 
-	private String name;
-    private String description;
-    private MultipartFile imageData; 
+	String name;
+	String description;
+	MultipartFile imageData;
 }
