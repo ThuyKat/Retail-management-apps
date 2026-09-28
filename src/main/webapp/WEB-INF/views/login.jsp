@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login QUICKQUICK</title>
+    <title>Login QUICKSHOP</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -78,6 +78,30 @@
             background-color: #0056b3;
         }
 
+        .demo-login {
+            background-color: #fff8e1;
+            border: 2px dashed #ff9800;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+
+        .demo-login p {
+            margin: 0 0 8px;
+            font-size: 13px;
+            color: #6d4c00;
+        }
+
+        .demo-login button {
+            width: 100%;
+            background-color: #ff9800;
+            font-weight: bold;
+        }
+
+        .demo-login button:hover {
+            background-color: #e68900;
+        }
+
         .contact-info, .working-hours {
             font-size: 14px;
             margin-top: 10px;
@@ -86,7 +110,13 @@
 </head>
 <body>
     <div class="login-container">
-        <h1>Login QUICKQUICK</h1>
+        <h1>Login QUICKSHOP</h1>
+
+        <div class="demo-login">
+            <p>Just looking around? Use the demo account.</p>
+            <button type="button" onclick="fillDemoCredentials()">Fill demo login (test / test)</button>
+        </div>
+
         <form action="/perform_login" method="post">
             <label for="username">User name</label>
             <input type="text" id="username" name="username" required>
@@ -110,7 +140,7 @@
         </form>
 
         <p class="contact-info">
-            Email: <a href="mailto:fsales@quickquick.com.vn">fsales@quickshop.com.vn</a><br>
+            Email: <a href="mailto:fsales@quickshop.com.vn">fsales@quickshop.com.vn</a><br>
             Help
         </p>
 
@@ -119,5 +149,13 @@
             Sat, Sun: 8:00 - 12:00; 13:30 - 22:00
         </p>
     </div>
+
+    <script>
+        function fillDemoCredentials() {
+            document.getElementById('username').value = 'test';
+            document.getElementById('password').value = 'test';
+            document.getElementById('password').focus();
+        }
+    </script>
 </body>
 </html>
